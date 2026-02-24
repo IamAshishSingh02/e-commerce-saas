@@ -2,6 +2,7 @@ import nodemailer from 'nodemailer'
 import dotenv from 'dotenv'
 import ejs from 'ejs'
 import path from 'path'
+import fs from 'fs'
 
 dotenv.config()
 
@@ -17,13 +18,15 @@ const transporter = nodemailer.createTransport({
 
 // Render ejs mail template
 const renderEmailTemplate = async (templateName: string, data: Record<string, any>): Promise<string> => {
-  const templatePath = path.join(
+  const templatePath = path.resolve(
     process.cwd(),
-    'auth-service',
-    'utils',
-    'email-templates',
+    'apps/auth-service/src/utils/email-templates',
     `${templateName}.ejs`
   )
+
+  if (!fs.existsSync(templatePath)) {
+    throw new Error(`Email template not found at: ${templatePath}`)
+  }
 
   return ejs.renderFile(templatePath, data)
 }
@@ -40,6 +43,7 @@ export const sendEmail = async (to: string, subject: string, templateName: strin
       html
     })
 
+    console.log('Email sent successfully')
     return true
   }
   catch(error){
