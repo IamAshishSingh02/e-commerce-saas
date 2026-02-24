@@ -87,7 +87,8 @@
         ],
         "options": {
           "buildTarget": "@e-commerce-saas/auth-service:build",
-          "runBuildTargetDependencies": false
+          "runBuildTargetDependencies": false,
+          "inspect": false
         },
         "configurations": {
           "development": {
