@@ -13,14 +13,17 @@
         "options": {
           "platform": "node",
           "outputPath": "apps/auth-service/dist",
-          "format": [
-            "cjs"
-          ],
+          "format": ["cjs"],
           "bundle": false,
           "main": "apps/auth-service/src/main.ts",
           "tsConfig": "apps/auth-service/tsconfig.app.json",
           "assets": [
-            "apps/auth-service/src/assets"
+            "apps/auth-service/src/assets",
+            {
+              "input": "apps/auth-service/src",
+              "glob": "swagger-output.json",
+              "output": "apps/auth-service/src"
+            }
           ],
           "esbuildOptions": {
             "sourcemap": true,
