@@ -16,6 +16,12 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022",
-    "customConditions": ["@e-commerce-saas/source"]
+    "customConditions": ["@e-commerce-saas/source"],
+    "baseUrl": ".",
+    "paths": {
+      "@packages/*": [
+        "packages/*"
+      ]
+    }
   }
 }
