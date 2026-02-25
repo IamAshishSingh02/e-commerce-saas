@@ -9,6 +9,7 @@
   "dependencies": {
     "@prisma/client": "^6.19.2",
     "axios": "^1.13.5",
+    "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
@@ -17,6 +18,7 @@
     "express-http-proxy": "^2.1.2",
     "express-rate-limit": "^8.2.1",
     "ioredis": "^5.9.3",
+    "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.1",
     "nodemailer": "^8.0.1",
     "swagger-autogen": "^2.23.7",
@@ -38,6 +40,7 @@
     "@swc/core": "~1.15.5",
     "@swc/helpers": "~0.5.18",
     "@swc/jest": "~0.2.38",
+    "@types/bcrypt": "^6.0.0",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/ejs": "^3.1.5",

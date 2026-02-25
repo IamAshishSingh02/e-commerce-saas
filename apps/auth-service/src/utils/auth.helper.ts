@@ -54,15 +54,15 @@ export const trackOtpRequests = async (email: string) => {
   const currentValue = await redis.get(otpRequestKey)
   const otpRequests = parseInt(currentValue || '0')
 
-  if (otpRequests >= 2) {
-    await redis.set(`otp_spam_lock:${email}`, 'locked', 'EX', 3600)
+  if (otpRequests >= 10) {
+    await redis.set(`otp_spam_lock:${email}`, 'locked', 'EX', 60 * 60)
 
     throw new ValidationError(
       'Too many OTP requests! Please wait 1 hour before requesting again'
     )
   }
 
-  await redis.set(otpRequestKey, otpRequests + 1, 'EX', 3600)
+  await redis.set(otpRequestKey, otpRequests + 1, 'EX', 60 * 60)
 }
 
 // Send OTP
@@ -72,6 +72,7 @@ export const sendOtp = async (
   template: string
 ) => {
   const otp = crypto.randomInt(1000, 9999).toString()
+  const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex')
 
   const emailSent = await sendEmail(
     email,
@@ -84,6 +85,37 @@ export const sendOtp = async (
     throw new Error('Failed to send OTP email')
   }
 
-  await redis.set(`otp:${email}`, otp, 'EX', 5 * 60)
-  await redis.set(`otp_cooldown:${email}`, 'true', 'EX', 60)
+  await redis.set(`otp:${email}`, hashedOtp, 'EX', 5 * 60)
+  await redis.set(`otp_cooldown:${email}`, 'true', 'EX', 1 * 60)
+}
+
+// Verify OTP
+export const verifyOtp = async (
+  email: string, 
+  otp: string
+) => {
+  const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex')
+  const storedOtp = await redis.get(`otp:${email}`)
+
+  if(!storedOtp){
+    throw new ValidationError('Invalid or Expired OTP!')
+  }
+
+  const failedAttemptsKey = `otp_attempts:${email}`
+  const currentValue = await redis.get(failedAttemptsKey)
+  const failedAttempts = parseInt(currentValue || '0')
+
+  if(storedOtp !== hashedOtp){
+    if(failedAttempts >= 10){
+      await redis.set(`otp_lock:${email}`, 'locked', 'EX', 30 * 60)
+      await redis.del(`otp:${email}`, failedAttemptsKey)
+
+      throw new ValidationError('Too many failed attempts. Your account is locked for 30 minutes!')
+    }
+
+    await redis.set(failedAttemptsKey, failedAttempts + 1, 'EX', 5 * 60)
+    throw new ValidationError(`Incorrect OTP. ${10 - (failedAttempts + 1)} attempts left!`)
+  }
+
+  await redis.del(`otp:${email}`, failedAttemptsKey, `otp_request_count:${email}`, `otp_cooldown:${email}`)
 }
