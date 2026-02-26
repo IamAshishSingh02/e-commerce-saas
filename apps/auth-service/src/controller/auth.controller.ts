@@ -3,9 +3,11 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import {
   checkOtpRestrictions,
+  handleForgotPassword,
   sendOtp,
   trackOtpRequests,
   validateRegistrationData,
+  verifyForgotPasswordOtp,
   verifyOtp
 } from '../utils/auth.helper'
 import prisma from '@packages/libs/prisma'
@@ -148,6 +150,93 @@ export const loginUser = async (
         name: user.name,
         email: user.email
       }
+    })
+
+  } catch (error) {
+    return next(error)
+  }
+}
+
+// User forgot password
+export const forgotUserPassword = async (
+  req: Request, 
+  res: Response, 
+  next: NextFunction
+) => {
+  try {
+    const { email } = req.body
+
+    await handleForgotPassword(email, 'user')
+
+    res.status(200).json({
+      message: 'OTP sent to your email. Please verify your account.'
+    })
+
+  } catch (error) {
+    next(error)
+  }
+}
+
+// Verify the forgot password OTP
+export const verifyUserForgotPassword = async(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email, otp } = req.body
+
+    await verifyForgotPasswordOtp(email, otp)
+
+    res.status(200).json({
+      message: 'OTP verified. You can reset your password.'
+    })
+
+  } catch (error) {
+    next(error)
+  }
+}
+
+// Reset user password
+export const resetUserPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {email, newPassword} = req.body
+
+    if(!email || !newPassword){
+      return next(new ValidationError('Email and new password are required!'))
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {email}
+    })
+
+    if(!user){
+      return next(new ValidationError('User not found!'))
+    }
+
+    // Compare new password with the existing one
+    const isSamePassword = await bcrypt.compare(newPassword, user.password!)
+    if(isSamePassword){
+      return next(new ValidationError('New password cannot be same as the old password!'))
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
+
+    // Update the user
+    await prisma.user.update({
+      where: {email},
+      data: {
+        password: hashedPassword
+      }
+    })
+
+    res.status(200).json({
+      message: 'Password reset successfully!'
     })
 
   } catch (error) {

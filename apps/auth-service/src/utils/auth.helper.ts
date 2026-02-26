@@ -2,6 +2,7 @@ import crypto from 'crypto'
 import { ValidationError } from '@packages/error-handler'
 import redis from '@packages/libs/redis'
 import { sendEmail } from './sendMail/index'
+import prisma from '@packages/libs/prisma'
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -54,7 +55,7 @@ export const trackOtpRequests = async (email: string) => {
   const currentValue = await redis.get(otpRequestKey)
   const otpRequests = parseInt(currentValue || '0')
 
-  if (otpRequests >= 10) {
+  if (otpRequests >= 5) {
     await redis.set(`otp_spam_lock:${email}`, 'locked', 'EX', 60 * 60)
 
     throw new ValidationError(
@@ -114,8 +115,44 @@ export const verifyOtp = async (
     }
 
     await redis.set(failedAttemptsKey, failedAttempts + 1, 'EX', 5 * 60)
-    throw new ValidationError(`Incorrect OTP. ${10 - (failedAttempts + 1)} attempts left!`)
+    throw new ValidationError(`Incorrect OTP. ${10 - (failedAttempts)} attempts left!`)
   }
 
   await redis.del(`otp:${email}`, failedAttemptsKey, `otp_request_count:${email}`, `otp_cooldown:${email}`)
+}
+
+// Handle forgot password
+export const handleForgotPassword = async(
+  email: string,
+  userType: 'user' | 'seller'
+) => {
+  if (!email) {
+    throw new ValidationError('Email is required!')
+  }
+
+  let user = null
+  if (userType === 'user') {
+    user = await prisma.user.findUnique({ where: { email } })
+  }
+
+  if (!user) {
+    throw new ValidationError(`${userType} not found!`)
+  }
+
+  await checkOtpRestrictions(user.email)
+  await trackOtpRequests(user.email)
+
+  await sendOtp(user.name, user.email, 'forgot-password-user-mail')
+}
+
+// Verify forgot password OTP
+export const verifyForgotPasswordOtp = async(
+  email: string,
+  otp: string
+) => {
+  if (!email || !otp) {
+    throw new ValidationError('Email and OTP are required!')
+  }
+
+  await verifyOtp(email, otp)
 }
