@@ -3,7 +3,7 @@ export default function ProfileIcon() {
     <svg
       viewBox="0 0 122.88 122.88"
       xmlns="http://www.w3.org/2000/svg"
-      className="w-7 h-7 text-slate-700"
+      className="w-7 h-7 text-black"
       fill="currentColor"
     >
       <g>

@@ -19,7 +19,7 @@ const Header = () => {
           <div>
             {/* Branding */}
             <Link href={'/'} className="text-2xl font-bold tracking-tight">
-              Shop<span className="text-emerald-600">Verse</span>
+              Shop<span className="text-[#047857]">Verse</span>
             </Link>
           </div>
 
@@ -52,7 +52,7 @@ const Header = () => {
               {/* Welcome text */}
               <Link href={'/login'} className='flex flex-col'>
                 <span className="text-xs text-slate-700">Hi there,</span>
-                <span className="text-sm font-semibold text-slate-800 hover:text-emerald-600 transition">
+                <span className="text-sm font-semibold text-slate-800 transition">
                   Sign In
                 </span>
               </Link>

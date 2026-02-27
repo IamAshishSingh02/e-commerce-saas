@@ -15,7 +15,7 @@ const HeaderBottom = () => {
       <div className='w-[80%] m-auto flex items-center justify-between py-2 relative'>
 
         {/* All Categories dropdown button */}
-        <div className='w-[260px] cursor-pointer flex items-center justify-between px-5 h-[50px] bg-emerald-700 hover:bg-emerald-600 transition' onClick={() => setShow(!show)}>
+        <div className='w-[260px] cursor-pointer flex items-center justify-between px-5 h-[50px] bg-[#047857] hover:bg-[#059669] transition' onClick={() => setShow(!show)}>
 
           {/* Icon + text */}
           <div className='flex items-center gap-2'>
@@ -38,7 +38,7 @@ const HeaderBottom = () => {
         {/* Navigation links */}
         <div className='flex items-center'>
           {navItems.map((i: NavItemsType, index: number) => (
-            <Link className='px-5 font-medium text-lg hover:text-emerald-600 transition' href={i.href} key={index}>
+            <Link className='px-5 font-medium text-lg hover:text-[#047857] transition' href={i.href} key={index}>
               {i.title}
             </Link>
           ))}
