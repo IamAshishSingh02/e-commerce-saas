@@ -1,6 +1,8 @@
 import './global.css';
+import Providers from './providers';
 import Header from './shared/widgets/header';
 import { Poppins, Roboto } from 'next/font/google'
+import { Toaster } from 'react-hot-toast'
 
 export const metadata = {
   title: 'ShopVerse',
@@ -27,13 +29,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${roboto.variable} ${poppins.variable}`}>
-        {/* Header component - top part is sticky */}
-        <Header />
-        
-        {/* Main content area - this is what scrolls */}
-        <main>
-          {children}
-        </main>
+        <Providers>
+          <Header />
+          <main>
+            {children}
+          </main>
+          <Toaster position="top-center" />
+        </Providers>
       </body>
     </html>
   )
