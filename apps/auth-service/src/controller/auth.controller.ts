@@ -209,6 +209,20 @@ export const refreshToken = async(
   }
 }
 
+// Get logged in user info
+export const getUser = async(req: any, res: Response, next: NextFunction) => {
+  try {
+    const user = req.user
+
+    res.status(201).json({
+      success: true,
+      user
+    })
+  } catch (error) {
+    return next(error)
+  }
+}
+
 // User forgot password
 export const forgotUserPassword = async (
   req: Request, 
