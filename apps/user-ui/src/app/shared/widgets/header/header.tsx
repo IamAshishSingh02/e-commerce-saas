@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react'
 import Link from 'next/link'
 import { SearchIcon } from 'lucide-react'
@@ -5,8 +7,10 @@ import ProfileIcon from '../../../../assets/svg/profile-icon'
 import WishlistIcon from '../../../../assets/svg/wishlist-icon'
 import CartIcon from '../../../../assets/svg/cart-icon'
 import HeaderBottom from './header-bottom'
+import getUser from '../../../../custom-hooks/useUser'
 
 const Header = () => {
+  const {user, isLoading} = getUser()
   return (
     <>
       {/* Top part - Sticky header that stays on scroll */}
@@ -44,18 +48,37 @@ const Header = () => {
             {/* Login */}
             <div className='flex items-center gap-2'>
 
-              {/* Profile icon */}
-              <Link href={'/login'}>
-                <ProfileIcon />
-              </Link>
+              {!isLoading && user ? (
+                <>
+                  {/* Profile icon */}
+                  <Link href={'/profile'}>
+                    <ProfileIcon />
+                  </Link>
 
-              {/* Welcome text */}
-              <Link href={'/login'} className='flex flex-col'>
-                <span className="text-xs text-slate-700">Hi there,</span>
-                <span className="text-sm font-semibold text-slate-800 transition">
-                  Sign In
-                </span>
-              </Link>
+                  {/* Welcome text */}
+                  <Link href={'/profile'} className='flex flex-col'>
+                    <span className="text-xs text-slate-700">Hello,</span>
+                    <span className="text-sm font-semibold text-slate-800 transition">
+                      {user.name.split(' ')[0]}
+                    </span>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  {/* Profile icon */}
+                  <Link href={'/login'}>
+                    <ProfileIcon />
+                  </Link>
+
+                  {/* Welcome text */}
+                  <Link href={'/login'} className='flex flex-col'>
+                    <span className="text-xs text-slate-700">Hi there,</span>
+                    <span className="text-sm font-semibold text-slate-800 transition">
+                      {isLoading ? '...' : 'Sign in'}
+                    </span>
+                  </Link>
+                </>
+              )}
 
             </div>
 
