@@ -12,16 +12,59 @@ model User {
   name      String
   email     String   @unique
   password  String?
-  avatar    UserProfileImage?
+  avatarUrl String?
   following String[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  reviews   ShopReview[]
 }
 
-model UserProfileImage {
-  id      String  @id @default(auto()) @map("_id") @db.ObjectId
-  file_id String
-  url     String
-  userId  String? @unique @db.ObjectId
-  user    User?   @relation(fields: [userId], references: [id])
+model Seller {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  email        String   @unique
+  password     String
+  phone_number String
+  country      String
+  stripeId     String?
+  shop         Shop?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Shop {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  bio           String?
+  category      String
+  avatarUrl     String?
+  coverBanner   String?
+  address       String
+  openingHours  String?
+  website       String?
+  socialLinks   Json[]
+  rating        Float         @default(5)
+
+  sellerId      String        @unique @db.ObjectId
+  seller        Seller        @relation(fields: [sellerId], references: [id])
+
+  reviews       ShopReview[]
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model ShopReview {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  rating    Float
+  comment   String?
+  
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+
+  shopId    String   @db.ObjectId
+  shop      Shop     @relation(fields: [shopId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
