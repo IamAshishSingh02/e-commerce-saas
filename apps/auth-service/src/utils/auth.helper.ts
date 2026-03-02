@@ -4,13 +4,12 @@ import redis from '@packages/libs/redis'
 import { sendEmail } from './sendMail/index'
 import prisma from '@packages/libs/prisma'
 
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
 // Validate registration data
 export const validateRegistrationData = (
   data: any,
   userType: 'user' | 'seller'
 ) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   const { name, email, password, phone_number, country } = data
 
   if (
@@ -130,19 +129,25 @@ export const handleForgotPassword = async(
     throw new ValidationError('Email is required!')
   }
 
-  let user = null
+  let account = null
   if (userType === 'user') {
-    user = await prisma.user.findUnique({ where: { email } })
+    account = await prisma.user.findUnique({ where: { email } })
+  } else {
+    account = await prisma.seller.findUnique({where: { email }})
   }
 
-  if (!user) {
+  if (!account) {
     throw new ValidationError(`${userType} not found!`)
   }
 
-  await checkOtpRestrictions(user.email)
-  await trackOtpRequests(user.email)
+  await checkOtpRestrictions(account.email)
+  await trackOtpRequests(account.email)
 
-  await sendOtp(user.name, user.email, 'forgot-password-user-mail')
+  await sendOtp(
+    account.name, 
+    account.email, 
+    userType === 'user' ? 'forgot-password-user-mail' : 'forgot-password-seller-mail'
+  )
 }
 
 // Verify forgot password OTP

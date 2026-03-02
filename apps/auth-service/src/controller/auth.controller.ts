@@ -14,6 +14,8 @@ import prisma from '@packages/libs/prisma'
 import { AuthError, ValidationError } from '@packages/error-handler'
 import { setCookie } from '../utils/cookies/setCookie'
 
+//------------------USER---------------------------
+
 // Register new user
 export const userRegistration = async (
   req: Request,
@@ -49,13 +51,13 @@ export const userRegistration = async (
 // Verify user with OTP
 export const verifyUser = async (
   req: Request,
-  res: Response, 
+  res: Response,
   next: NextFunction
 ) => {
   try {
-    const{name, email, password, otp} = req.body
+    const { name, email, password, otp } = req.body
 
-    if(!name || !email || !password || !otp){
+    if (!name || !email || !password || !otp) {
       return next(new ValidationError('All fields required'))
     }
 
@@ -63,7 +65,7 @@ export const verifyUser = async (
       where: { email }
     })
 
-    if(existingUser){
+    if (existingUser) {
       return next(new ValidationError('User already exists with this email!'))
     }
 
@@ -72,7 +74,7 @@ export const verifyUser = async (
 
     await prisma.user.create({
       data: {
-        name, 
+        name,
         email,
         password: hashedPassword
       }
@@ -90,28 +92,28 @@ export const verifyUser = async (
 
 // Login user
 export const loginUser = async (
-  req: Request, 
-  res: Response, 
+  req: Request,
+  res: Response,
   next: NextFunction
 ) => {
   try {
-    const {email, password} = req.body
-    
-    if(!email || !password){
+    const { email, password } = req.body
+
+    if (!email || !password) {
       return next(new ValidationError('Email and Password are required!'))
     }
 
     const user = await prisma.user.findUnique({
-      where: {email}
+      where: { email }
     })
 
-    if(!user){
+    if (!user) {
       return next(new AuthError(`User doesn't exists!`))
     }
 
     // Verify password
     const isMatch = await bcrypt.compare(password, user.password!)
-    if(!isMatch){
+    if (!isMatch) {
       return next(new AuthError('Invalid email or password!'))
     }
 
@@ -120,7 +122,7 @@ export const loginUser = async (
       {
         id: user.id,
         role: 'user'
-      }, 
+      },
       process.env.ACCESS_TOKEN_SECRET as string,
       {
         expiresIn: '15m'
@@ -132,7 +134,7 @@ export const loginUser = async (
       {
         id: user.id,
         role: 'user'
-      }, 
+      },
       process.env.REFRESH_TOKEN_SECRET as string,
       {
         expiresIn: '7d'
@@ -158,29 +160,29 @@ export const loginUser = async (
 }
 
 // Refresh token user
-export const refreshToken = async(
-  req: Request, 
+export const refreshToken = async (
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
     const refreshToken = req.cookies.refresh_token
 
-    if(!refreshToken){
+    if (!refreshToken) {
       return next(new ValidationError('Unauthorized! No refresh token.'))
     }
 
     const decoded = jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET!
-    ) as {id: string, role: string}
+    ) as { id: string, role: string }
 
-    if(!decoded || !decoded.id || !decoded.role){
+    if (!decoded || !decoded.id || !decoded.role) {
       return next(new JsonWebTokenError('Forbidden! Invalid refresh token.'))
     }
 
     let account
-    if(decoded.role === 'user'){
+    if (decoded.role === 'user') {
       account = await prisma.user.findUnique({
         where: {
           id: decoded.id
@@ -188,14 +190,14 @@ export const refreshToken = async(
       })
     }
 
-    if(!account){
+    if (!account) {
       return next(new AuthError(`Forbidden! ${decoded.role} not found`))
     }
 
     const newAccessToken = jwt.sign(
-      {id: decoded.id, role: decoded.role},
+      { id: decoded.id, role: decoded.role },
       process.env.ACCESS_TOKEN_SECRET!,
-      {expiresIn: '15m'}
+      { expiresIn: '15m' }
     )
 
     setCookie(res, 'access_token', newAccessToken)
@@ -210,7 +212,11 @@ export const refreshToken = async(
 }
 
 // Get logged in user info
-export const getUser = async(req: any, res: Response, next: NextFunction) => {
+export const getUser = async (
+  req: any, 
+  res: Response, 
+  next: NextFunction
+) => {
   try {
     const user = req.user
 
@@ -225,8 +231,8 @@ export const getUser = async(req: any, res: Response, next: NextFunction) => {
 
 // User forgot password
 export const forgotUserPassword = async (
-  req: Request, 
-  res: Response, 
+  req: Request,
+  res: Response,
   next: NextFunction
 ) => {
   try {
@@ -244,7 +250,7 @@ export const forgotUserPassword = async (
 }
 
 // Verify the forgot password OTP
-export const verifyUserForgotPassword = async(
+export const verifyUserForgotPassword = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -270,23 +276,23 @@ export const resetUserPassword = async (
   next: NextFunction
 ) => {
   try {
-    const {email, newPassword} = req.body
+    const { email, newPassword } = req.body
 
-    if(!email || !newPassword){
+    if (!email || !newPassword) {
       return next(new ValidationError('Email and new password are required!'))
     }
 
     const user = await prisma.user.findUnique({
-      where: {email}
+      where: { email }
     })
 
-    if(!user){
+    if (!user) {
       return next(new ValidationError('User not found!'))
     }
 
     // Compare new password with the existing one
     const isSamePassword = await bcrypt.compare(newPassword, user.password!)
-    if(isSamePassword){
+    if (isSamePassword) {
       return next(new ValidationError('New password cannot be same as the old password!'))
     }
 
@@ -295,7 +301,7 @@ export const resetUserPassword = async (
 
     // Update the user
     await prisma.user.update({
-      where: {email},
+      where: { email },
       data: {
         password: hashedPassword
       }
@@ -309,3 +315,83 @@ export const resetUserPassword = async (
     return next(error)
   }
 }
+
+//----------------- SELLER------------------- 
+
+// Register a new seller
+export const sellerRegistration = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    validateRegistrationData(req.body, 'seller')
+
+    const { name, email } = req.body
+
+    const existingSeller = await prisma.seller.findUnique({
+      where: {
+        email
+      }
+    })
+
+    if (existingSeller)
+      return next(new ValidationError('Seller already exists with this email!'))
+
+    await checkOtpRestrictions(email)
+    await trackOtpRequests(email)
+    await sendOtp(name, email, 'seller-activation-mail')
+
+    return res.status(200).json({
+      message: 'OTP sent to your email. Please verify your account.'
+    })
+
+  } catch (error) {
+    return next(error)
+  }
+}
+
+// Verify seller with OTP
+export const verifySeller = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { name, email, password, phone_number, country, otp } = req.body
+
+    if (!name || !email || !password || !phone_number || !country || !otp) {
+      return next(new ValidationError('All fields required'))
+    }
+
+    const existingSeller = await prisma.seller.findUnique({
+      where: { email }
+    })
+
+    if (existingSeller) {
+      return next(new ValidationError('Seller already exists with this email!'))
+    }
+
+    await verifyOtp(email, otp)
+    const hashedPassword = await bcrypt.hash(password, 10)
+
+    await prisma.seller.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        phone_number,
+        country
+      }
+    })
+
+    return res.status(201).json({
+      success: true,
+      message: 'Seller registered successfully!'
+    })
+
+  } catch (error) {
+    return next(error)
+  }
+}
+
