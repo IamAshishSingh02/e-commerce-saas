@@ -3,38 +3,57 @@ import prisma from '@packages/libs/prisma'
 import { Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 
-const isAuthenticated = async (req: any, res: Response, next: NextFunction) => {
+const isAuthenticated = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const token = req.cookies.access_token || req.headers.authorization?.split(' ')[1]
+    const token =
+      req.cookies.user_access_token ||
+      req.cookies.seller_access_token ||
+      req.headers.authorization?.split(' ')[1]
 
-    if(!token){
+    if (!token) {
       return next(new AuthError('Unauthorized! Token missing'))
     }
 
-    // Verify token
     const decoded = jwt.verify(
-      token, 
+      token,
       process.env.ACCESS_TOKEN_SECRET!
-    ) as {id: string, role: 'user' | 'seller'}
+    ) as { id: string; role: 'user' | 'seller' }
 
-    if(!decoded){
-      return next(new AuthError('Unauthorized! Invalid token.'))
+    if (!decoded) {
+      return next(new AuthError('Unauthorized! Invalid token'))
     }
 
-    const account = await prisma.user.findUnique({
-      where: {
-        id: decoded.id
+    if (decoded.role === 'user') {
+      const user = await prisma.user.findUnique({
+        where: { id: decoded.id }
+      })
+
+      if (!user) {
+        return next(new AuthError('User not found'))
       }
-    })
 
-    if(!account){
-      return next(new AuthError('Account is not found!'))
+      req.user = user
+      return next()
     }
 
-    req.user = account
+    if (decoded.role === 'seller') {
+      const seller = await prisma.seller.findUnique({
+        where: { id: decoded.id }
+      })
 
-    return next()
+      if (!seller) {
+        return next(new AuthError('Seller not found'))
+      }
 
+      req.seller = seller
+      return next()
+    }
+
+    return next(new AuthError('Invalid role'))
   } catch (error) {
     return next(error)
   }

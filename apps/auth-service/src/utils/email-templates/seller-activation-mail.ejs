@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ShopVerse Seller Account Activation</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style type="text/css">
+    body {
+      margin: 0;
+      padding: 0;
+      min-width: 100%;
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      background-color: #f4f6f8;
+      color: #222222;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0;
+      text-align: center;
+    }
+
+    p {
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+
+    .wrapper {
+      max-width: 600px;
+      margin: 40px auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .header {
+      background-color: #111827;
+      padding: 24px;
+      color: #ffffff;
+      text-align: center;
+    }
+
+    .body {
+      padding: 32px 24px;
+    }
+
+    .otp-box {
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      letter-spacing: 6px;
+      margin: 25px 0;
+      color: #111827;
+    }
+
+    .footer {
+      background-color: #f9fafb;
+      padding: 20px 24px;
+      font-size: 14px;
+      text-align: center;
+      color: #6b7280;
+    }
+
+    .support-link {
+      color: #111827;
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+
+    <div class="header">
+      <h1>Seller Account Activation</h1>
+    </div>
+
+    <div class="body">
+      <p>Hello <strong><%= name %></strong>,</p>
+
+      <p>
+        Welcome to <strong>ShopVerse Seller Portal</strong>.
+        You're just one step away from activating your seller account.
+      </p>
+
+      <p>
+        Please use the following One-Time Password (OTP) to verify and activate your seller account:
+      </p>
+
+      <div class="otp-box">
+        <%= otp %>
+      </div>
+
+      <p>
+        This OTP is valid for <strong>5 minutes</strong>.
+        For security reasons, please do not share this code with anyone.
+      </p>
+
+      <p>
+        If you did not create a seller account on ShopVerse,
+        please ignore this email.
+      </p>
+    </div>
+
+    <div class="footer">
+      Need help? Contact us at
+      <a href="mailto:psssasds212004@gmail.com" class="support-link">
+        psssasds212004@gmail.com
+      </a>
+    </div>
+
+  </div>
+</body>
+</html>
