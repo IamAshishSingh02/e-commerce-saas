@@ -13,11 +13,7 @@ import {
 import prisma from '@packages/libs/prisma'
 import { AuthError, ValidationError } from '@packages/error-handler'
 import { setCookie } from '../utils/cookies/setCookie'
-import Stripe from 'stripe'
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2026-02-25.clover'
-})
+import stripe from '@packages/libs/stripe'
 
 //------------------USER---------------------------
 
