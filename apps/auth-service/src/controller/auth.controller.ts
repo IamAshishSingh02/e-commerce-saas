@@ -324,7 +324,7 @@ export const verifySeller = async (
     await verifyOtp(email, otp)
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    await prisma.seller.create({
+    const seller = await prisma.seller.create({
       data: {
         name,
         email,
@@ -335,6 +335,7 @@ export const verifySeller = async (
     })
 
     return res.status(201).json({
+      seller,
       success: true,
       message: 'Seller registered successfully!'
     })
@@ -354,22 +355,22 @@ export const createShop = async (
     const {name, bio, address, opening_hours, website, category, sellerId} = req.body
 
     if(
-      !name || 
-      !bio ||
-      !address ||
+      !name.trim() || 
+      !bio.trim() ||
+      !address.trim() ||
       !sellerId ||
-      !opening_hours ||
+      !opening_hours.trim() ||
       !category
     ){
       return next(new ValidationError('All fields required!'))
     }
 
     const shopData: any = {
-      name, 
-      bio,
-      address,
+      name: name.trim(), 
+      bio: bio.trim(),
+      address: address.trim(),
       sellerId,
-      opening_hours,
+      opening_hours: opening_hours.trim(),
       category
     }
 
