@@ -31,7 +31,7 @@ app.get('/gateway-health', (req, res) => {
 // Apply rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: (req: any) => (req.user ? 1000 : 100),
+  max: 1000,
   message: {
     error: 'Too many requests, please try again later!'
   },
