@@ -118,6 +118,9 @@ export const loginUser = async (
       return next(new AuthError('Invalid email or password!'))
     }
 
+    res.clearCookie('seller_access_token')
+    res.clearCookie('seller_refresh_token')
+
     // Generate access token
     const accessToken = jwt.sign(
       {
@@ -481,6 +484,9 @@ export const loginSeller = async (
       return next(new AuthError('Invalid email or password!'))
     }
 
+    res.clearCookie('user_access_token')
+    res.clearCookie('user_refresh_token')
+
     // Generate access token
     const accessToken = jwt.sign(
       {
@@ -511,7 +517,7 @@ export const loginSeller = async (
 
     res.status(200).json({
       message: 'Login successful!',
-      user: {
+      seller: {
         id: seller.id,
         name: seller.name,
         email: seller.email

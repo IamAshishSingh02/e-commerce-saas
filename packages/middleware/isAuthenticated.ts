@@ -27,6 +27,8 @@ const isAuthenticated = async (
       return next(new AuthError('Unauthorized! Invalid token'))
     }
 
+    req.role = decoded.role
+
     if (decoded.role === 'user') {
       const user = await prisma.user.findUnique({
         where: { id: decoded.id }
@@ -42,7 +44,8 @@ const isAuthenticated = async (
 
     if (decoded.role === 'seller') {
       const seller = await prisma.seller.findUnique({
-        where: { id: decoded.id }
+        where: { id: decoded.id },
+        include: {shop: true}
       })
 
       if (!seller) {
