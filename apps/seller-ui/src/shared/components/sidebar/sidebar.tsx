@@ -9,9 +9,8 @@ import { Sidebar } from "./sidebar.style"
 import Link from 'next/link'
 import Logo from "../../../../src/assets/svg/logo"
 import SidebarItem from "./sidebar.item"
-import HomeIcon from "../../../assets/svg/home-icon"
 import SidebarMenu from "./sidebar.menu"
-import { BellRing, CalendarCheck, CalendarPlus2, LogOut, Logs, Mail, PackageSearch, Settings, SquarePlus, TicketPercent } from "lucide-react"
+import { BellRing, CalendarCheck, CalendarPlus2, LayoutDashboard, LogOut, Logs, Mail, PackageSearch, Settings, SquarePlus, TicketPercent } from "lucide-react"
 import PaymentIcon from "../../../assets/svg/payment-icon"
 
 const SidebarComponent = () => {
@@ -56,7 +55,7 @@ const SidebarComponent = () => {
           {/*  */}
           <SidebarItem
             title="Dashboard"
-            icon={<HomeIcon fill={getIconColor('/dashboard')} />}
+            icon={<LayoutDashboard size={20} fill={getIconColor('/dashboard')} />}
             isActive={activeSidebar === '/dashboard'}
             href={'/dashboard'}
           />
