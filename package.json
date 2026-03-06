@@ -22,6 +22,7 @@
     "express-http-proxy": "^2.1.2",
     "express-rate-limit": "^8.2.1",
     "ioredis": "^5.9.3",
+    "jotai": "^2.18.0",
     "jsonwebtoken": "^9.0.3",
     "libphonenumber-js": "^1.12.38",
     "lucide-react": "^0.575.0",
@@ -33,6 +34,7 @@
     "react-hook-form": "^7.71.2",
     "react-hot-toast": "^2.6.0",
     "stripe": "^20.4.0",
+    "styled-components": "^6.3.11",
     "swagger-autogen": "^2.23.7",
     "swagger-ui-express": "^5.0.1"
   },
@@ -67,6 +69,7 @@
     "@types/nodemailer": "^7.0.11",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@types/styled-components": "^5.1.36",
     "@types/swagger-ui-express": "^4.1.8",
     "autoprefixer": "10.4.13",
     "esbuild": "^0.19.2",
