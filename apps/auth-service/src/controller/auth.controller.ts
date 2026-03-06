@@ -118,8 +118,16 @@ export const loginUser = async (
       return next(new AuthError('Invalid email or password!'))
     }
 
-    res.clearCookie('seller_access_token')
-    res.clearCookie('seller_refresh_token')
+    res.clearCookie('seller_access_token', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none'
+    })
+    res.clearCookie('seller_refresh_token', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none'
+    })
 
     // Generate access token
     const accessToken = jwt.sign(
@@ -146,8 +154,8 @@ export const loginUser = async (
     )
 
     // Store the tokens in httpOnly secure cookie
-    setCookie(res, 'user_access_token', accessToken)
-    setCookie(res, 'user_refresh_token', refreshToken)
+    setCookie(res, 'user_access_token', accessToken, 15 * 60 * 1000)
+    setCookie(res, 'user_refresh_token', refreshToken, 7 * 24 * 60 * 60* 1000)
 
     res.status(200).json({
       message: 'Login successful!',
@@ -484,8 +492,16 @@ export const loginSeller = async (
       return next(new AuthError('Invalid email or password!'))
     }
 
-    res.clearCookie('user_access_token')
-    res.clearCookie('user_refresh_token')
+    res.clearCookie('user_access_token', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none'
+    })
+    res.clearCookie('user_refresh_token', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none'
+    })
 
     // Generate access token
     const accessToken = jwt.sign(
@@ -512,8 +528,8 @@ export const loginSeller = async (
     )
 
     // Store the tokens in httpOnly secure cookie
-    setCookie(res, 'seller_access_token', accessToken)
-    setCookie(res, 'seller_refresh_token', refreshToken)
+    setCookie(res, 'seller_access_token', accessToken, 15 * 60 * 1000)
+    setCookie(res, 'seller_refresh_token', refreshToken, 7 * 24 * 60 * 60 * 1000)
 
     res.status(200).json({
       message: 'Login successful!',
@@ -595,11 +611,11 @@ export const refreshToken = async (
     )
 
     if (decoded.role === 'user') {
-      setCookie(res, 'user_access_token', newAccessToken)
+      setCookie(res, 'user_access_token', newAccessToken, 7 * 60 * 1000)
     }
 
     if (decoded.role === 'seller') {
-      setCookie(res, 'seller_access_token', newAccessToken)
+      setCookie(res, 'seller_access_token', newAccessToken, 7 * 60 * 1000)
     }
 
     return res.status(200).json({

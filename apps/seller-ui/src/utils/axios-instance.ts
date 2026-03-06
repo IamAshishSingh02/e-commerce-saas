@@ -36,40 +36,42 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config
+    const originalRequest = error.config;
 
-    // Prevent infinite retry loop
-    if(error.response?.status === 401 && !originalRequest._retry){
-      if(!isRefreshing){
+    if (error.response?.status === 401 && !originalRequest._retry) {
+
+      // If refresh already running → queue request
+      if (isRefreshing) {
         return new Promise((resolve) => {
-          subscribeTokenRefresh(() => resolve(axiosInstance(originalRequest)))
-        })
+          subscribeTokenRefresh(() => resolve(axiosInstance(originalRequest)));
+        });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_SERVER_URI}/api/refresh-token`,
+          {},
+          { withCredentials: true }
+        );
+
+        isRefreshing = false;
+        onRefreshSuccess();
+
+        return axiosInstance(originalRequest);
+
+      } catch (err) {
+        isRefreshing = false;
+        refreshSubscribers = [];
+        handleLogout();
+        return Promise.reject(err);
       }
     }
 
-    originalRequest._retry = true
-    isRefreshing = true
-
-    try {
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/refresh-token`,
-        {},
-        {withCredentials: true}
-      )
-
-      isRefreshing =false
-      onRefreshSuccess()
-
-      return axiosInstance(originalRequest)
-
-    } catch (error) {
-      isRefreshing = false
-      refreshSubscribers = []
-      handleLogout()
-      return Promise.reject(error)
-    }
-    return Promise.reject(error)
+    return Promise.reject(error);
   }
-)
+);
 
 export default axiosInstance
