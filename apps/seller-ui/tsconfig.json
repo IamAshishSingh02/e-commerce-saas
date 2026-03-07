@@ -28,7 +28,7 @@
       ]
     },
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDir": "../../",
     "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
   },
   "include": [
@@ -38,6 +38,7 @@
     "src/**/*.jsx",
     "../../apps/seller-ui/.next/types/**/*.ts",
     "../../dist/apps/seller-ui/.next/types/**/*.ts",
+    "../../packages/**/*.tsx",
     "next-env.d.ts"
   ],
   "exclude": [
