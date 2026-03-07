@@ -27,7 +27,7 @@ const SidebarComponent = () => {
 
   return (
     <Box
-      css={{height: '100vh', zIndex: 202, position: 'sticky', padding: '8px', top: '0', overflowY: 'scroll',scrollbarWidth: 'none'}}
+      $css={{height: '100vh', zIndex: 202, position: 'sticky', padding: '8px', top: '0', overflowY: 'scroll',scrollbarWidth: 'none'}}
       className="sidebar-wrapper"
     >
 
