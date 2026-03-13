@@ -73,14 +73,14 @@ const CustomSpecifications = ({control, errors}: any) => {
           <PlusCircle size={20} /> Add Specification
         </button>
 
-      </div>
+        {/*  */}
+        {errors?.custom_specifications && (
+          <span className="text-red-500 text-sm mt-1">
+            {errors.custom_specifications.message as string}
+          </span>
+        )}
 
-      {/*  */}
-      {errors?.custom_specifications && (
-        <span className="text-red-500 text-sm mt-1">
-          {errors.custom_specifications.message as string}
-        </span>
-      )}
+      </div>
 
     </div>
   )
