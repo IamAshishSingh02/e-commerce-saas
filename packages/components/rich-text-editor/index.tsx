@@ -1,6 +1,12 @@
+"use client";
+
 import React, { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
-import ReactQuill from "react-quill-new";
+
+const ReactQuill = dynamic(() => import("react-quill-new"), {
+  ssr: false,
+});
 
 const RichTextEditor = ({
   value,
