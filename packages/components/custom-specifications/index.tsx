@@ -6,7 +6,7 @@ import { PlusCircle, Trash2 } from 'lucide-react'
 const CustomSpecifications = ({control, errors}: any) => {
   const {fields, append, remove} = useFieldArray({
     control,
-    name: 'custom_specifications'
+    name: 'customSpecifications'
   })
   return (
     <div>
@@ -27,7 +27,7 @@ const CustomSpecifications = ({control, errors}: any) => {
           >
             {/*  */}
             <Controller
-              name={`custom_specifications.${index}.name`}
+              name={`customSpecifications.${index}.name`}
               control={control}
               rules={{ required: "Specification name is required" }}
               render={({ field }) => (
@@ -41,7 +41,7 @@ const CustomSpecifications = ({control, errors}: any) => {
 
             {/*  */}
             <Controller
-              name={`custom_specifications.${index}.value`}
+              name={`customSpecifications.${index}.value`}
               control={control}
               rules={{ required: "Value is required" }}
               render={({ field }) => (
@@ -74,9 +74,9 @@ const CustomSpecifications = ({control, errors}: any) => {
         </button>
 
         {/*  */}
-        {errors?.custom_specifications && (
+        {errors?.customSpecifications && (
           <span className="text-red-500 text-sm mt-1">
-            {errors.custom_specifications.message as string}
+            {errors.customSpecifications.message as string}
           </span>
         )}
 

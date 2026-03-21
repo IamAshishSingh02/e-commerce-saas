@@ -34,7 +34,7 @@ const CustomProperties = ({control, errors}: any) => {
     <div>
       <div className="flex flex-col gap-3">
         <Controller 
-          name='custom-properties'
+          name='customProperties'
           control={control}
           render={({field}) => {
             useEffect(() => {
@@ -127,9 +127,9 @@ const CustomProperties = ({control, errors}: any) => {
                 </div>
 
                 {/* Error message */}
-                {errors?.custom_properties && (
+                {errors?.customProperties && (
                   <span className="text-red-500 text-sm mt-1">
-                    {errors.custom_properties.message as string}
+                    {errors.customProperties.message as string}
                   </span>
                 )}
               </div>
