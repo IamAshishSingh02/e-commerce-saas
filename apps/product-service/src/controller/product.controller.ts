@@ -1,4 +1,4 @@
-import { NotFoundError, ValidationError } from '@packages/error-handler'
+import { AuthError, NotFoundError, ValidationError } from '@packages/error-handler'
 import { imagekit } from '@packages/libs/imagekit'
 import prisma from '@packages/libs/prisma'
 import {Request, Response, NextFunction} from 'express'
@@ -165,6 +165,146 @@ export const deleteProductImage = async (
 
     res.status(200).json({
       success: true,
+    })
+
+  } catch (error) {
+    return next(error)
+  }
+}
+
+// Create product 
+export const createProduct = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {
+      title, 
+      shortDescription,
+      detailedDescription,
+      warranty,
+      customSpecifications, 
+      slug,
+      tags,
+      cashOnDelivery,
+      brand,
+      videoUrl,
+      category,
+      subCategory,
+      colors = [],
+      sizes = [],
+      discountCodes = [],
+      stock,
+      regularPrice,
+      salePrice,
+      customProperties = {},
+      images = [], 
+    } = req.body
+
+    if (
+      !title ||
+      !slug ||
+      !shortDescription ||
+      !detailedDescription ||
+      !category ||
+      !subCategory ||
+      !salePrice ||
+      !regularPrice ||
+      !stock ||
+      !tags ||
+      !images?.length 
+    ) return next(new ValidationError('Missing required fields!'))
+
+    if (!req.seller?.id)
+      return next(new AuthError('Only seller can create products'))
+
+    if (!req.seller?.shop?.id)
+      return next(new ValidationError('Seller must have a shop to create products'))
+
+    const slugCheck = await prisma.product.findUnique({
+      where: { slug }
+    })
+
+    if (slugCheck)
+      return next(new ValidationError('Slug already exists! Please use a different slug!'))
+
+    if (discountCodes?.length > 0) {
+      const validCodes = await prisma.discountCodes.findMany({
+        where: {
+          id: { in: discountCodes },
+          sellerId: req.seller.id
+        }
+      })
+
+      if (validCodes.length !== discountCodes.length)
+        return next(new ValidationError('Some discount codes are invalid or do not belong to you'))
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+
+      // Create the product first
+      const newProduct = await tx.product.create({
+        data: {
+          title,
+          shortDescription,
+          detailedDescription,
+          warranty: warranty || null,
+          cashOnDelivery: Boolean(cashOnDelivery),
+          slug,
+          shopId: req.seller.shop.id,
+          tags: Array.isArray(tags) 
+            ? tags 
+            : tags.split(",").map((tag: string) => tag.trim()),
+          brand: brand || null, 
+          videoUrl: videoUrl || null,
+          category,
+          subCategory,
+          colors: colors || [],
+          sizes: sizes || [],
+          discountCodes: discountCodes || [], 
+          stock: parseInt(stock),
+          salePrice: parseFloat(salePrice),
+          regularPrice: parseFloat(regularPrice),
+          customProperties: customProperties || {},
+          customSpecifications: customSpecifications || {},
+        }
+      })
+
+      // Create images separately with proper relation
+      if (images?.length > 0) {
+        await Promise.all(
+          images.map((image: any) =>
+            tx.image.create({
+              data: {
+                fileId: image.fileId,
+                url: image.url,
+                productId: newProduct.id
+              }
+            })
+          )
+        )
+      }
+
+      // Fetch complete product with images
+      return await tx.product.findUnique({
+        where: { id: newProduct.id },
+        include: {
+          images: true,
+          shop: {
+            select: {
+              id: true,
+              name: true,
+              rating: true
+            }
+          }
+        }
+      })
+    })
+
+    res.status(201).json({
+      success: true,
+      product: result
     })
 
   } catch (error) {
