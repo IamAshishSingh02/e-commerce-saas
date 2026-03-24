@@ -311,3 +311,28 @@ export const createProduct = async (
     return next(error)
   }
 }
+
+// Get logged in seller products 
+export const getShopProducts = async (
+  req: any, 
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const products = await prisma.product.findMany({
+      where: {
+        shopId: req?.seller?.shop?.id
+      },
+      include: {
+        images: true
+      }
+    })
+
+    res.status(200).json({
+      success: true,
+      products
+    })
+  } catch (error) {
+    return next(error)
+  }
+}
